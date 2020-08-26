@@ -20,7 +20,7 @@ app.use(cors());
 //importar rutas
 app.use(require('./routes/index.routes'));
 
-
+console.log(process.env.DB_URI);
 app.listen(process.env.PORT, () => {
 
     mongoose.connect(process.env.DB_URI, {
