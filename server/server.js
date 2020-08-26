@@ -23,16 +23,23 @@ app.use(require('./routes/index.routes'));
 console.log(process.env.DB_URI);
 app.listen(process.env.PORT, () => {
 
-    mongoose.connect(process.env.DB_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useCreateIndex: true,
-        useFindAndModify: false
-    }, (err, res) => {
-        if (err) throw err;
-        console.log('Base de datos up');
+    try {
 
-    });
+        mongoose.connect(process.env.DB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            useCreateIndex: true,
+            useFindAndModify: false
+        }, (err, res) => {
+            if (err) throw err;
+            console.log('Base de datos up');
+
+        });
+
+    } catch (error) {
+        console.log(error);
+    }
+
 
     console.log("nippy api run");
 
