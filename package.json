@@ -1,0 +1,24 @@
+{
+    "name": "nippy-api-rest",
+    "version": "1.0.0",
+    "description": "API rest",
+    "main": "server/server.js",
+    "scripts": {
+        "test": "node server/server.js",
+        "start": "node server/server.js",
+        "desa": "nodemon server/server.js"
+    },
+    "author": "NippyFive",
+    "license": "ISC",
+    "dependencies": {
+        "axios": "^0.20.0",
+        "bcrypt": "^5.0.0",
+        "body-parser": "^1.19.0",
+        "cors": "^2.8.5",
+        "express": "^4.17.1",
+        "jsonwebtoken": "^8.5.1",
+        "mongoose": "^5.10.0",
+        "mongoose-unique-validator": "^2.0.3",
+        "underscore": "^1.10.2"
+    }
+}
