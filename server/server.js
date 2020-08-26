@@ -26,6 +26,8 @@ app.listen(process.env.PORT, () => {
     try {
 
         mongoose.connect(process.env.DB_URI, {
+            user: process.env.MONGO_USER,
+            pass: process.env.MONGO_PASS,
             useNewUrlParser: true,
             useUnifiedTopology: true,
             useCreateIndex: true,
