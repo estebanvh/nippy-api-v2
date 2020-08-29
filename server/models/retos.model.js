@@ -49,7 +49,10 @@ let retoSchema = new Schema({
         type: Boolean,
         default: true
     },
-
+    miniIcon: {
+        type: String,
+        default: ""
+    },
     icon: {
         type: String,
         default: ""
