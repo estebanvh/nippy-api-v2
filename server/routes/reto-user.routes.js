@@ -245,7 +245,7 @@ app.put('/actualizar-avance', (req, resp) => {
             dias.push(diaActual);
             dias.push(nuevoDia);
             inscripcionDB.dias = dias;
-            inscripcionDB.avance = Math.round(100 / inscripcionDB.totalDias) === 0 ? 1 : Math.round(diaActual.dia * 100 / inscripcionDB.totalDias);
+            inscripcionDB.avance = Math.round(100 / inscripcionDB.totalDias) === 0 ? 0 : Math.round(diaActual.dia * 100 / inscripcionDB.totalDias);
             inscripcionDB.diaActual += 1;
 
         }
@@ -259,7 +259,7 @@ app.put('/actualizar-avance', (req, resp) => {
             }
 
             response.Accepted.registros = inscripcionNuevo.length;
-            response.Accepted.inscripcion = inscripcionNuevo;
+            response.Accepted.inscripcion = _.pick(inscripcionNuevo, ['_id', 'estado', 'diaActual']);
             return resp.json(response.Accepted);
 
         })
