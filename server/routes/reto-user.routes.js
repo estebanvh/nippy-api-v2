@@ -12,7 +12,8 @@ app.post('/inscribir-reto', (req, resp) => {
 
     let response = JSON.parse(JSON.stringify(responseInscribirReto));
     let body = _.pick(req.body, ["user", "reto", "estado", "totalDias"]);
-    let avance = Math.round(100 / body.totalDias) === 0 ? 1 : Math.round(100 / body.totalDias);
+    //  let avance = Math.round(100 / body.totalDias) === 0 ? 1 : Math.round(100 / body.totalDias);
+    let avance = 0;
     body.avance = avance;
 
     let retoUser = new RetosUsers(body);
@@ -112,28 +113,42 @@ app.get('/avance-reto/:id', (req, resp) => {
 
 app.get('/inscripciones-usuario/:id', (req, resp) => {
 
-    let id = req.params.id;
+    let query = {
+        user: '',
+        estado: ''
+    }
+
+    query.user = req.params.id;
+    if (req.query.estado === undefined || req.query.estado === '') {
+        delete query.estado;
+    } else {
+        query.estado = req.query.estado;
+    }
+
     response = JSON.parse(JSON.stringify(responseInscripciones));
 
-    RetosUsers.find({ user: id }, (err, inscripcionesDB) => {
+    RetosUsers.find(query)
+        .sort({ ultActualizacion: -1 })
+        .populate('reto')
+        .exec((err, inscripcionesDB) => {
 
-        if (err) {
-            response.Rejected.error.detalle = err;
-            return resp.status(500).json(response.Rejected);
-        }
+            if (err) {
+                response.Rejected.error.detalle = err;
+                return resp.status(500).json(response.Rejected);
+            }
 
-        if (!inscripcionesDB) {
-            response.Accepted.mensaje = "No se ha inscrito a ningún reto";
-            response.Accepted.inscripciones = [];
-            response.Accepted.registros = 0;
+            if (!inscripcionesDB) {
+                response.Accepted.mensaje = "No se ha inscrito a ningún reto";
+                response.Accepted.inscripciones = [];
+                response.Accepted.registros = 0;
+                return resp.json(response.Accepted);
+            }
+
+            response.Accepted.inscripciones = inscripcionesDB;
+            response.Accepted.registros = inscripcionesDB.length;
             return resp.json(response.Accepted);
-        }
 
-        response.Accepted.inscripciones = inscripcionesDB;
-        response.Accepted.registros = inscripcionesDB.length;
-        return resp.json(response.Accepted);
-
-    });
+        });
 
 })
 
@@ -238,6 +253,8 @@ app.put('/actualizar-avance', (req, resp) => {
 
         }
 
+        inscripcionDB.diaActual = diaActual.dia + 1;
+        inscripcionDB.ultActualizacion = new Date().getTime();
         inscripcionDB.save((errGuardar, inscripcionNuevo) => {
 
             if (errGuardar) {

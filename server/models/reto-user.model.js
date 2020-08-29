@@ -24,6 +24,10 @@ let retoUserSchema = new Schema({
         type: Number,
         default: 1
     },
+    diaActual: {
+        type: Number,
+        default: 1
+    },
     estado: {
         type: String,
         default: 'PROCESO',
@@ -31,6 +35,10 @@ let retoUserSchema = new Schema({
     },
     avance: {
         type: Number
+    },
+    ultActualizacion: {
+        type: Number,
+        default: new Date().getTime()
     },
     dias: {
         type: [{

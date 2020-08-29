@@ -27,17 +27,6 @@ let usuarioSchema = new Schema({
         default: 0
     },
 
-    retoActivo: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    inscripcionActiva: {
-        type: String,
-        required: false,
-        default: ""
-    },
-
     estado: {
         type: Boolean,
         default: true,
