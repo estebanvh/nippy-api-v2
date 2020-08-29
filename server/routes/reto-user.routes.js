@@ -203,14 +203,13 @@ app.get('/retos-recomendados-usuario/:id', (req, resp) => {
 
 app.put('/actualizar-avance', (req, resp) => {
 
-
+    let date = new Date();
     let response = JSON.parse(JSON.stringify(responseInscribirReto));
     let id = req.body.id;
 
-
     if (!id) {
         response.Rejected.error.mensaje = "No se encontro el recurso solicitado";
-        return resp.status(500).json(response.Rejected);
+        return resp.status(404).json(response.Rejected);
     }
 
     RetosUsers.findById(id, (err, inscripcionDB) => {
@@ -218,18 +217,17 @@ app.put('/actualizar-avance', (req, resp) => {
         let dias = inscripcionDB.dias;
         let diaActual = dias[dias.length - 1]
 
-        if (diaActual.dia === inscripcionDB.totalDias) {
+        if (inscripcionDB.diaActual === inscripcionDB.totalDias) {
 
             inscripcionDB.estado = "OK";
-            inscripcionDB.fechaFinalizado = new Date().getTime();
+            inscripcionDB.fechaFinalizado = date.getTime();
             inscripcionDB.avance = "100";
 
-            let ultimoDia = inscripcionDB.dias[inscripcionDB.dias.length - 1];
-            ultimoDia.estado = "OK";
-            ultimoDia.fechaRealTermino = new Date().getTime();
+            diaActual.estado = "OK";
+            diaActual.fechaRealTermino = date.getTime();
 
             inscripcionDB.dias.pop();
-            inscripcionDB.dias.push(ultimoDia);
+            inscripcionDB.dias.push(diaActual);
 
         } else {
 
@@ -237,24 +235,22 @@ app.put('/actualizar-avance', (req, resp) => {
                 dia: diaActual.dia + 1,
                 inicio: diaActual.fin,
                 fin: (diaActual.fin + (1 * 24 * 60 * 60 * 1000)),
-                fechaInicio: new Date(diaActual.fin),
-                fechaFin: new Date(diaActual.fin + (1 * 24 * 60 * 60 * 1000)),
                 estado: 'PROCESO'
             }
 
             diaActual.estado = 'OK';
-            diaActual.fechaRealTermino = new Date().getTime();
+            diaActual.fechaRealTermino = date.getTime();
 
             dias.pop();
             dias.push(diaActual);
             dias.push(nuevoDia);
             inscripcionDB.dias = dias;
             inscripcionDB.avance = Math.round(100 / inscripcionDB.totalDias) === 0 ? 1 : Math.round(diaActual.dia * 100 / inscripcionDB.totalDias);
+            inscripcionDB.diaActual += 1;
 
         }
 
-        inscripcionDB.diaActual = diaActual.dia + 1;
-        inscripcionDB.ultActualizacion = new Date().getTime();
+        inscripcionDB.ultActualizacion = date.getTime();
         inscripcionDB.save((errGuardar, inscripcionNuevo) => {
 
             if (errGuardar) {

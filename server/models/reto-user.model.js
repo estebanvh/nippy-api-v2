@@ -3,6 +3,7 @@ const User = require('./usuario.model');
 const Reto = require('./retos.model');
 
 let Schema = mongoose.Schema;
+let date = new Date();
 
 
 let estadosValidos = {
@@ -15,7 +16,7 @@ let retoUserSchema = new Schema({
     fechaAceptado: {
         type: Number,
         required: true,
-        default: new Date().getTime()
+        default: date.getTime()
     },
     fechaFinalizado: {
         type: Number,
@@ -38,15 +39,13 @@ let retoUserSchema = new Schema({
     },
     ultActualizacion: {
         type: Number,
-        default: new Date().getTime()
+        default: date.getTime()
     },
     dias: {
         type: [{
             dia: Number,
             inicio: Number,
             fin: Number,
-            fechaInicio: Date,
-            fechaFin: Date,
             fechaRealTermino: Number,
             estado: {
                 type: String,
@@ -55,10 +54,8 @@ let retoUserSchema = new Schema({
         }],
         default: [{
             dia: 1,
-            inicio: new Date().getTime(),
-            fin: (new Date().getTime() + 1),
-            fechaInicio: new Date(),
-            fechaFin: new Date().setDate(new Date().getDate() + 1),
+            inicio: date.getTime(),
+            fin: (date.getTime() + (1 * 24 * 60 * 60 * 1000)),
             estado: "PROCESO"
         }]
     },
