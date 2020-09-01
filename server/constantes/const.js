@@ -19,6 +19,23 @@ const respLogin = {
 
 //fin login
 
+//response universal
+const responseApi = `{
+    "Accepted": {
+        "ok": true,
+        "mensaje": "Transacción exitosa",
+        "object": "",
+        "registros": 0
+    },
+    "Rejected": {
+        "ok": false,
+        "error": {
+            "mensaje": "Error al realizar la petición",
+            "detalle": ""
+        }
+    }
+}`;
+
 //Usuario
 const requestUser = {
     nombre: "",
@@ -133,6 +150,7 @@ const responseInscripciones = {
 
 
 module.exports = {
+    responseApi,
     respLogin,
     requestReto,
     responseReto,

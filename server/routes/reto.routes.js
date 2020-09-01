@@ -7,6 +7,32 @@ const { responseReto } = require('../constantes/const');
 const { verificaToken } = require('../middleware/autenthication');
 
 const Retos = require('../models/retos.model');
+const { json } = require('body-parser');
+
+app.get('/get-retos', (req, resp) => {
+
+    let response = JSON.parse(JSON.stringify(responseReto));
+    Retos.find((err, retosDB) => {
+
+        if (err) {
+            response.Rejected.error.detalle = err;
+            return resp.status(500).json(response.Rejected);
+        }
+
+        if (!retosDB) {
+            response.Accepted.mensaje = "No se encontraron registros";
+            response.Accepted.reto = [];
+            return resp.json(response.Accepted);
+        }
+
+        response.Accepted.registros = retosDB.length;
+        response.Accepted.reto = retosDB;
+        return resp.json(response.Accepted);
+
+    })
+
+})
+
 
 //app.get("/reto/:id", verificaToken, (req, resp) => {
 

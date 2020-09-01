@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Tip = require('./tips.model');
 
 let Schema = mongoose.Schema;
 
@@ -56,8 +57,8 @@ let retoSchema = new Schema({
     icon: {
         type: String,
         default: ""
-    }
-
+    },
+    tips: [{ type: mongoose.Types.ObjectId, ref: Tip }]
 
 })
 

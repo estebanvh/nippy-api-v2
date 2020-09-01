@@ -12,7 +12,6 @@ app.post('/inscribir-reto', (req, resp) => {
 
     let response = JSON.parse(JSON.stringify(responseInscribirReto));
     let body = _.pick(req.body, ["user", "reto", "estado", "totalDias"]);
-    //  let avance = Math.round(100 / body.totalDias) === 0 ? 1 : Math.round(100 / body.totalDias);
     let avance = 0;
     body.avance = avance;
 
@@ -72,41 +71,64 @@ app.get('/avance-reto/:id', (req, resp) => {
     let id = req.params.id;
     response = JSON.parse(JSON.stringify(responseEstadisticaReto));
 
-    RetosUsers.findById(id, (err, inscripcionDB) => {
+    RetosUsers.findById(id)
+        .populate({
+            path: 'reto',
+            model: 'Reto',
+            populate: {
+                path: 'tips',
+                model: 'Tip'
+            }
+        })
+        .exec((err, inscripcionDB) => {
 
+            if (err) {
+                response.Rejected.error.detalle = err;
+                return resp.status(500).json(response.Rejected);
+            }
 
-        if (err) {
-            response.Rejected.error.detalle = err;
-            return resp.status(500).json(response.Rejected);
-        }
+            if (!inscripcionDB) {
+                response.Rejected.error.mensaje = "No se encontraron registros para la inscripción solicitada";
+                return resp.status(400).json(response.Rejected);
 
-        if (!inscripcionDB) {
-            response.Rejected.error.mensaje = "No se encontraron registros para la inscripción solicitada";
-            return resp.status(400).json(response.Rejected);
+            }
 
-        }
+            let dias = inscripcionDB.dias;
+            dias = dias[dias.length - 1];
 
-        let dias = inscripcionDB.dias;
-        dias = dias[dias.length - 1];
-        body = {
-            _id: inscripcionDB._id,
-            reto: inscripcionDB.reto,
-            diaInicial: dias.dia === 1 ? true : false,
-            diaFinal: dias.dia === inscripcionDB.totalDias ? true : false,
-            totalDias: inscripcionDB.totalDias,
-            diaActual: dias.dia,
-            idDia: dias._id,
-            estadoReto: inscripcionDB.estado,
-            fechaInicio: dias.inicio,
-            avance: inscripcionDB.avance + '%',
-            cantSemanas: Math.round(inscripcionDB.totalDias / 7)
-        };
+            let cantTips = inscripcionDB.reto.tips.length;
+            let tip;
 
-        response.Accepted.registros = 1;
-        response.Accepted.estadistica = body;
-        return resp.json(response.Accepted);
+            if (cantTips > 0) {
 
-    })
+                if (cantTips >= dias.dia) {
+                    tip = inscripcionDB.reto.tips[dias.dia - 1];
+                } else {
+                    tip = inscripcionDB.reto.tips[(dias.dia - cantTips) - 1]
+                }
+
+            }
+
+            body = {
+                _id: inscripcionDB._id,
+                reto: inscripcionDB.reto,
+                diaInicial: dias.dia === 1 ? true : false,
+                diaFinal: dias.dia === inscripcionDB.totalDias ? true : false,
+                totalDias: inscripcionDB.totalDias,
+                diaActual: dias.dia,
+                idDia: dias._id,
+                estadoReto: inscripcionDB.estado,
+                fechaInicio: dias.inicio,
+                avance: inscripcionDB.avance + '%',
+                cantSemanas: Math.round(inscripcionDB.totalDias / 7),
+                tip
+            };
+
+            response.Accepted.registros = 1;
+            response.Accepted.estadistica = body;
+            return resp.json(response.Accepted);
+
+        })
 
 });
 
