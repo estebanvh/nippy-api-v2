@@ -104,12 +104,11 @@ app.get('/retos-min/:id', (req, resp) => {
 
 app.post('/crear-reto', [verificaToken], (req, resp) => {
 
-    let body = _.pick(req.body, ['titulo', 'nivel', 'ranking', 'votos', 'participantes', 'descripcion', 'adicional', 'estado', 'icon']);
+    let body = _.pick(req.body, ['titulo', 'nivel', 'ranking', 'votos', 'participantes', 'descripcion', 'adicional', 'estado', 'icon', 'miniIcon', 'tips']);
 
-    let requestReto = body;
     let response = JSON.parse(JSON.stringify(responseReto));
 
-    let reto = new Retos(requestReto);
+    let reto = new Retos(body);
 
     reto.save((err, retoDB) => {
 
