@@ -5,15 +5,30 @@ const _ = require('underscore');
 const RetosUsers = require('../models/reto-user.model');
 const Retos = require('../models/retos.model');
 
+const { registrarDia, eliminarDia } = require('../funciones/dias');
 
-let { responseInscribirReto, responseEstadisticaReto, responseInscripciones, responseReto } = require('../constantes/const')
+
+
+let { responseInscribirReto, responseEstadisticaReto, responseInscripciones, responseApi } = require('../constantes/const')
 
 app.post('/inscribir-reto', (req, resp) => {
 
     let response = JSON.parse(JSON.stringify(responseInscribirReto));
-    let body = _.pick(req.body, ["user", "reto", "estado", "totalDias"]);
     let avance = 0;
+    let body = _.pick(req.body, ["user", "reto", "estado", "totalDias"]);
+
+    body.ultActualizacion = new Date().getTime();
     body.avance = avance;
+
+    let dia = [];
+    dia.push({
+        dia: 1,
+        inicio: new Date().getTime(),
+        fin: new Date().getTime() + Number(process.env.CADUCA_DIA),
+        estado: "PROCESO"
+    })
+
+    body.dias = dia;
 
     let retoUser = new RetosUsers(body);
 
@@ -31,6 +46,7 @@ app.post('/inscribir-reto', (req, resp) => {
 
         response.Accepted.registros = retoUserDB.length;
         response.Accepted.inscripcion = retoUserDB._id;
+        registrarDia(retoUserDB.dias[0], retoUser._id);
         return resp.json(response.Accepted);
 
 
@@ -39,7 +55,7 @@ app.post('/inscribir-reto', (req, resp) => {
 
 app.get('/get-inscripcion/:id', (req, resp) => {
 
-    let response = JSON.parse(JSON.stringify(responseInscripciones));
+    let response = JSON.parse(responseApi);
     let id = req.params.id;
 
     RetosUsers.findById(id)
@@ -57,7 +73,7 @@ app.get('/get-inscripcion/:id', (req, resp) => {
                 return resp.json(response.Accepted);
             }
 
-            response.Accepted.inscripciones = inscripcionDB;
+            response.Accepted.object = inscripcionDB;
             response.Accepted.registros = inscripcionDB.length;
             return resp.json(response.Accepted);
 
@@ -179,7 +195,7 @@ app.get('/inscripciones-usuario/:id', (req, resp) => {
 app.get('/retos-recomendados-usuario/:id', (req, resp) => {
 
     let id = req.params.id;
-    let response = JSON.parse(JSON.stringify(responseReto));
+    let response = JSON.parse(responseApi);
 
     RetosUsers.find({ user: id, estado: 'PROCESO' }, (err, inscripcionesDB) => {
 
@@ -209,13 +225,13 @@ app.get('/retos-recomendados-usuario/:id', (req, resp) => {
 
                 response.Accepted.mensaje = "No tienes retos disponibles";
                 response.Accepted.registros = 0;
-                response.Accepted.reto = retosDB;
+                response.Accepted.object = retosDB;
                 return resp.json(response.Accepted);
 
             }
 
             response.Accepted.registros = retosDB.length;
-            response.Accepted.reto = retosDB;
+            response.Accepted.object = retosDB;
             return resp.json(response.Accepted);
 
         })
@@ -225,9 +241,9 @@ app.get('/retos-recomendados-usuario/:id', (req, resp) => {
 
 app.put('/actualizar-avance', (req, resp) => {
 
-    let date = new Date();
     let response = JSON.parse(JSON.stringify(responseInscribirReto));
     let id = req.body.id;
+    let final = false;
 
     if (!id) {
         response.Rejected.error.mensaje = "No se encontro el recurso solicitado";
@@ -238,41 +254,45 @@ app.put('/actualizar-avance', (req, resp) => {
 
         let dias = inscripcionDB.dias;
         let diaActual = dias[dias.length - 1]
+        eliminarDia(diaActual._id);
 
         if (inscripcionDB.diaActual === inscripcionDB.totalDias) {
 
+            inscripcionDB.diasCompletados += 1;
             inscripcionDB.estado = "OK";
-            inscripcionDB.fechaFinalizado = date.getTime();
-            inscripcionDB.avance = "100";
+            inscripcionDB.fechaFinalizado = new Date().getTime();
+            inscripcionDB.avance = Math.round(inscripcionDB.diasCompletados * 100 / inscripcionDB.totalDias);
+
 
             diaActual.estado = "OK";
-            diaActual.fechaRealTermino = date.getTime();
+            diaActual.fechaRealTermino = new Date().getTime();
 
             inscripcionDB.dias.pop();
             inscripcionDB.dias.push(diaActual);
+            final = true;
 
         } else {
-
             let nuevoDia = {
                 dia: diaActual.dia + 1,
                 inicio: diaActual.fin,
-                fin: (diaActual.fin + (1 * 24 * 60 * 60 * 1000)),
+                fin: (Number(diaActual.fin) + Number(process.env.CADUCA_DIA)),
                 estado: 'PROCESO'
             }
 
+            inscripcionDB.diasCompletados += 1;
             diaActual.estado = 'OK';
-            diaActual.fechaRealTermino = date.getTime();
+            diaActual.fechaRealTermino = new Date().getTime();
 
             dias.pop();
             dias.push(diaActual);
             dias.push(nuevoDia);
             inscripcionDB.dias = dias;
-            inscripcionDB.avance = Math.round(100 / inscripcionDB.totalDias) === 0 ? 0 : Math.round(diaActual.dia * 100 / inscripcionDB.totalDias);
+            inscripcionDB.avance = Math.round(100 / inscripcionDB.totalDias) === 0 ? 0 : Math.round(inscripcionDB.diasCompletados * 100 / inscripcionDB.totalDias);
             inscripcionDB.diaActual += 1;
 
         }
 
-        inscripcionDB.ultActualizacion = date.getTime();
+        inscripcionDB.ultActualizacion = new Date().getTime();
         inscripcionDB.save((errGuardar, inscripcionNuevo) => {
 
             if (errGuardar) {
@@ -282,6 +302,14 @@ app.put('/actualizar-avance', (req, resp) => {
 
             response.Accepted.registros = inscripcionNuevo.length;
             response.Accepted.inscripcion = _.pick(inscripcionNuevo, ['_id', 'estado', 'diaActual']);
+
+            // registra dato en colleccion dia, para validar caducidad
+            if (!final) {
+                registrarDia(inscripcionNuevo.dias[dias.length - 1], inscripcionNuevo._id);
+            } else {
+                eliminarDia(inscripcionNuevo._id);
+            }
+
             return resp.json(response.Accepted);
 
         })

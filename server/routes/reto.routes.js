@@ -3,15 +3,15 @@ const app = express();
 const _ = require('underscore');
 
 
-const { responseReto } = require('../constantes/const');
+const { responseApi } = require('../constantes/const');
 const { verificaToken } = require('../middleware/autenthication');
 
 const Retos = require('../models/retos.model');
-const { json } = require('body-parser');
+
 
 app.get('/get-retos', (req, resp) => {
 
-    let response = JSON.parse(JSON.stringify(responseReto));
+    let response = JSON.parse(responseApi);
     Retos.find((err, retosDB) => {
 
         if (err) {
@@ -21,12 +21,12 @@ app.get('/get-retos', (req, resp) => {
 
         if (!retosDB) {
             response.Accepted.mensaje = "No se encontraron registros";
-            response.Accepted.reto = [];
+            response.Accepted.object = [];
             return resp.json(response.Accepted);
         }
 
         response.Accepted.registros = retosDB.length;
-        response.Accepted.reto = retosDB;
+        response.Accepted.object = retosDB;
         return resp.json(response.Accepted);
 
     })
@@ -39,7 +39,7 @@ app.get('/get-retos', (req, resp) => {
 app.get("/reto/:id", (req, resp) => {
 
     let id = req.params.id;
-    let response = JSON.parse(JSON.stringify(responseReto));
+    let response = JSON.parse(responseApi);
 
     Retos.findById(id, (err, retoDB) => {
 
@@ -59,7 +59,7 @@ app.get("/reto/:id", (req, resp) => {
         };
 
         response.Accepted.registros = retoDB.length;
-        response.Accepted.reto = retoDB
+        response.Accepted.object = retoDB
 
         return resp.json(
             response.Accepted
@@ -71,7 +71,7 @@ app.get("/reto/:id", (req, resp) => {
 
 app.get('/retos-min/:id', (req, resp) => {
 
-    let response = JSON.parse(JSON.stringify(responseReto));
+    let response = JSON.parse(responseApi);
     let id = req.params.id;
     Retos.findById(id, { titulo: 1, icon: 1, descripcion: 1 }, (err, retosDB) => {
 
@@ -89,7 +89,7 @@ app.get('/retos-min/:id', (req, resp) => {
         }
 
         response.Accepted.registros = retosDB.length;
-        response.Accepted.reto = retosDB
+        response.Accepted.object = retosDB
 
         return resp.json(
             response.Accepted
@@ -106,7 +106,7 @@ app.post('/crear-reto', [verificaToken], (req, resp) => {
 
     let body = _.pick(req.body, ['titulo', 'nivel', 'ranking', 'votos', 'participantes', 'descripcion', 'adicional', 'estado', 'icon', 'miniIcon', 'tips']);
 
-    let response = JSON.parse(JSON.stringify(responseReto));
+    let response = JSON.parse(responseApi);
 
     let reto = new Retos(body);
 
@@ -126,7 +126,7 @@ app.post('/crear-reto', [verificaToken], (req, resp) => {
             )
         }
 
-        response.Accepted.reto = retoDB;
+        response.Accepted.object = retoDB;
         response.Accepted.registros = 1;
 
         return resp.json(response.Accepted)

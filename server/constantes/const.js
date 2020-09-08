@@ -15,8 +15,6 @@ const respLogin = {
     }
 
 };
-
-
 //fin login
 
 //response universal
@@ -35,63 +33,6 @@ const responseApi = `{
         }
     }
 }`;
-
-//Usuario
-const requestUser = {
-    nombre: "",
-    email: "",
-    password: "",
-    puntos: "",
-    isEncrypt: ""
-};
-
-const responseUser = {
-    Accepted: {
-        ok: true,
-        mensaje: "Transacción exitosa",
-        user: "",
-        registros: 0
-    },
-
-    Rejected: {
-        ok: false,
-        error: {
-            mensaje: "Error al realizar la petición",
-            detalle: ""
-        }
-    }
-};
-
-//Retos Api
-const requestReto = {
-    titulo: "",
-    nivel: "",
-    ranking: "",
-    votos: "",
-    participantes: "",
-    descripcion: "",
-    adicional: "",
-    estado: "",
-    icon: ""
-};
-
-const responseReto = {
-    Accepted: {
-        ok: true,
-        mensaje: "Transacción exitosa",
-        reto: "",
-        registros: 0
-    },
-
-    Rejected: {
-        ok: false,
-        error: {
-            mensaje: "Error al realizar la petición",
-            detalle: ""
-        }
-    }
-};
-
 
 const responseInscribirReto = {
     Accepted: {
@@ -152,10 +93,6 @@ const responseInscripciones = {
 module.exports = {
     responseApi,
     respLogin,
-    requestReto,
-    responseReto,
-    requestUser,
-    responseUser,
     responseInscribirReto,
     responseEstadisticaReto,
     responseInscripciones

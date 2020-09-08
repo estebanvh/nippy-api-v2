@@ -1,6 +1,9 @@
 //ENVIROMENT
 process.env.NODE_ENV = process.env.NODE_ENV || 'desa';
 
+//caducidad dias
+process.env.CADUCA_DIA = process.env.CADUCA_DIA || (1000 * 60 * 2); // (1 * 24 * 60 * 60 * 1000) 1 dia en milisegundos
+
 //SEMILLA
 process.env.SEED = process.env.SEED || 'seed1234';
 process.env.EXPIRE = '1h';
