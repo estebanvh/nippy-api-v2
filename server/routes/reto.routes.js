@@ -104,7 +104,7 @@ app.get('/retos-min/:id', (req, resp) => {
 
 app.post('/crear-reto', [verificaToken], (req, resp) => {
 
-    let body = _.pick(req.body, ['titulo', 'nivel', 'ranking', 'votos', 'participantes', 'descripcion', 'adicional', 'estado', 'icon', 'miniIcon', 'tips']);
+    let body = _.pick(req.body, ['titulo', 'nivel', 'ranking', 'votos', 'participantes', 'descripcion', 'adicional', 'estado', 'icon', 'miniIcon', 'tips', 'tiempo']);
 
     let response = JSON.parse(responseApi);
 
