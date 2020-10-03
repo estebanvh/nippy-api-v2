@@ -1,5 +1,12 @@
 const mongoose = require('mongoose');
 const Tip = require('./tips.model');
+const uniqueValidator = require('mongoose-unique-validator');
+
+let estadosValidos = {
+    values: ['Sin definir', 'Disponible', 'No disponible', 'Refinar'],
+    message: '{VALUE} no es un vaor válido'
+}
+
 
 let Schema = mongoose.Schema;
 
@@ -58,8 +65,18 @@ let retoSchema = new Schema({
         type: String,
         default: ""
     },
-    tips: [{ type: mongoose.Types.ObjectId, ref: Tip }]
+    tips: [{
+        type: mongoose.Types.ObjectId,
+        ref: Tip
+    }],
+    fase: {
+        type: String,
+        default: "Sin definir",
+        required: false,
+        enum: estadosValidos
+    }
 
 })
 
+retoSchema.plugin(uniqueValidator, { message: '{PATH} debe ser único' })
 module.exports = mongoose.model('Reto', retoSchema);

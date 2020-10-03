@@ -11,6 +11,7 @@ const { registrarDia, eliminarDia } = require('../funciones/dias');
 
 let { responseInscribirReto, responseEstadisticaReto, responseInscripciones, responseApi } = require('../constantes/const')
 
+
 app.post('/inscribir-reto', (req, resp) => {
 
     let response = JSON.parse(JSON.stringify(responseInscribirReto));

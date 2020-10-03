@@ -32,7 +32,26 @@ const responseApi = `{
             "detalle": ""
         }
     }
+
 }`;
+
+//response universal
+const responseApiV2 =
+    `{
+        "ok"        : true,
+        "mensaje"   : "Transacción exitosa",
+        "detalle"   : "",
+        "object"    : "",
+        "registros" : 0,
+        "paginacion" : {
+            "anterior": "",
+            "actual" : "",
+            "posterior":"",
+            "totalRegistros": ""
+        }
+    }`;
+
+
 
 const responseInscribirReto = {
     Accepted: {
@@ -91,6 +110,7 @@ const responseInscripciones = {
 
 
 module.exports = {
+    responseApiV2,
     responseApi,
     respLogin,
     responseInscribirReto,
