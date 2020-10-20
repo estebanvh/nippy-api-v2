@@ -4,7 +4,7 @@ const uniqueValidator = require('mongoose-unique-validator');
 
 let estadosValidos = {
     values: ['Sin definir', 'Disponible', 'No disponible', 'Refinar'],
-    message: '{VALUE} no es un vaor válido'
+    message: '{VALUE} no es un valor válido'
 }
 
 
@@ -74,6 +74,9 @@ let retoSchema = new Schema({
         default: "Sin definir",
         required: false,
         enum: estadosValidos
+    },
+    razon: {
+        type: String
     }
 
 })

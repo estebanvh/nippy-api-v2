@@ -99,7 +99,7 @@ const obtenerRetoPorId = (req, resp) => {
 
 const crearReto = (req, resp) => {
 
-    let body = _.pick(req.body, ['titulo', 'nivel', 'ranking', 'votos', 'participantes', 'descripcion', 'adicional', 'estado', 'icon', 'miniIcon', 'tips', 'tiempo']);
+    let body = _.pick(req.body, ['titulo', 'nivel', 'ranking', 'votos', 'participantes', 'descripcion', 'adicional', 'estado', 'icon', 'miniIcon', 'tips', 'tiempo', 'razon']);
 
     let response = JSON.parse(responseApiV2);
 
